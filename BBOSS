@@ -108,7 +108,7 @@ bringBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Bring Boss Feature
+-- Bring Boss Feature (stick to player)
 local bringBoss = false
 local bossBtn = Instance.new("TextButton", frame)
 bossBtn.Text = "Bring Boss [OFF]"
@@ -123,29 +123,27 @@ bossBtn.MouseButton1Click:Connect(function()
     bossBtn.Text = bringBoss and "Bring Boss [ON]" or "Bring Boss [OFF]"
 
     if bringBoss then
-        spawn(function()
+        task.spawn(function()
             while bringBoss do
-                local char = game.Players.LocalPlayer.Character
-                if char then
-                    local hrp = char:FindFirstChild("HumanoidRootPart")
-                    if hrp then
-                        for _, mob in ipairs(workspace:GetDescendants()) do
-                            if mob:IsA("Model") and mob.Name == "Boss" then
-                                local mobPart = mob:FindFirstChild("HumanoidRootPart") or mob:FindFirstChildWhichIsA("BasePart")
-                                if mobPart then
-                                    local offset = mobPart.Position - mob:GetPivot().Position
-                                    mob:PivotTo(CFrame.new(hrp.Position + offset))
-                                    for _, p in ipairs(mob:GetDescendants()) do
-                                        if p:IsA("BasePart") then
-                                            p.Anchored = true
-                                        end
+                local plr = game.Players.LocalPlayer
+                local char = plr.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    local hrp = char.HumanoidRootPart
+                    for _, mob in ipairs(workspace:GetDescendants()) do
+                        if mob:IsA("Model") and mob.Name == "Boss" then
+                            local mobPart = mob:FindFirstChild("HumanoidRootPart") or mob:FindFirstChildWhichIsA("BasePart")
+                            if mobPart then
+                                mob:PivotTo(CFrame.new(hrp.Position + Vector3.new(2, 0, 0))) -- slight offset
+                                for _, part in ipairs(mob:GetDescendants()) do
+                                    if part:IsA("BasePart") then
+                                        part.Anchored = true
                                     end
                                 end
                             end
                         end
                     end
                 end
-                wait(0.5)
+                wait(0.05)
             end
         end)
     end
