@@ -17,7 +17,7 @@ title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 title.TextColor3 = Color3.fromRGB(128, 0, 255)
 title.TextScaled = true
 
--- Auto Swing (Replaced with Sparkle Butcher RemoteClick + FireServer)
+-- Auto Swing Toggle (Improved and Less Detectable)
 local autoSwing = false
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Text = "Auto Swing [OFF]"
@@ -32,28 +32,22 @@ autoBtn.MouseButton1Click:Connect(function()
     autoBtn.Text = autoSwing and "Auto Swing [ON]" or "Auto Swing [OFF]"
 
     if autoSwing then
-        spawn(function()
+        task.spawn(function()
             while autoSwing do
+                local plr = game:GetService("Players").LocalPlayer
+                local char = plr.Character or plr.CharacterAdded:Wait()
+                local tool = char:FindFirstChildWhichIsA("Tool")
                 local events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
-                if events then
-                    local swingEvent = events:FindFirstChild("SwingSaber")
-                    if swingEvent then
-                        swingEvent:FireServer()
-                    end
+
+                if events and events:FindFirstChild("SwingSaber") then
+                    events.SwingSaber:FireServer()
                 end
 
-                local char = game:GetService("Players").LocalPlayer.Character
-                if char then
-                    local blade = char:FindFirstChild("Sparkle Butcher")
-                    if blade then
-                        local click = blade:FindFirstChild("RemoteClick")
-                        if click then
-                            local args = {{}}
-                            click:FireServer(unpack(args))
-                        end
-                    end
+                if tool and tool:FindFirstChild("RemoteClick") then
+                    tool.RemoteClick:FireServer({})
                 end
-                task.wait(0.05)
+
+                task.wait(0.07 + math.random(3, 10) * 0.005)
             end
         end)
     end
