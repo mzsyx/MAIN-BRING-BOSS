@@ -17,7 +17,7 @@ title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 title.TextColor3 = Color3.fromRGB(128, 0, 255)
 title.TextScaled = true
 
--- Auto Swing Toggle (Fixed for tool animation and mob hit)
+-- Auto Swing Toggle (Auto-detect saber + real swing)
 local autoSwing = false
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Text = "Auto Swing [OFF]"
@@ -37,25 +37,23 @@ autoBtn.MouseButton1Click:Connect(function()
                 local plr = game:GetService("Players").LocalPlayer
                 local char = plr.Character or plr.CharacterAdded:Wait()
                 local tool = char:FindFirstChildWhichIsA("Tool") or plr.Backpack:FindFirstChildWhichIsA("Tool")
-                local events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
+                local events = game:GetService("ReplicatedStorage"):WaitForChild("Events")
 
-                -- Equip tool if not equipped
                 if tool and not char:FindFirstChild(tool.Name) then
                     plr.Character.Humanoid:EquipTool(tool)
                     task.wait(0.1)
                 end
 
-                -- Fire SwingSaber event for strength
-                if events and events:FindFirstChild("SwingSaber") then
+                if events:FindFirstChild("SwingSaber") then
                     events.SwingSaber:FireServer()
                 end
 
-                -- Fire RemoteClick for sword animation + damage
                 if tool and tool:FindFirstChild("RemoteClick") then
-                    tool.RemoteClick:FireServer({})
+                    local args = { {} }
+                    tool.RemoteClick:FireServer(unpack(args))
                 end
 
-                task.wait(0.07 + math.random(1, 5) * 0.01)
+                task.wait(0.07)
             end
         end)
     end
