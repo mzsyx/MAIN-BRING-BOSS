@@ -17,7 +17,7 @@ title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 title.TextColor3 = Color3.fromRGB(128, 0, 255)
 title.TextScaled = true
 
--- Auto Swing Toggle (Activate + RemoteClick + SwingSaber)
+-- Auto Swing Toggle (simulates real mouse input)
 local autoSwing = false
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Text = "Auto Swing [OFF]"
@@ -33,8 +33,10 @@ autoBtn.MouseButton1Click:Connect(function()
 
     if autoSwing then
         task.spawn(function()
+            local VirtualInputManager = game:GetService("VirtualInputManager")
+            local plr = game.Players.LocalPlayer
+
             while autoSwing do
-                local plr = game:GetService("Players").LocalPlayer
                 local char = plr.Character or plr.CharacterAdded:Wait()
                 local tool = char:FindFirstChildWhichIsA("Tool") or plr.Backpack:FindFirstChildWhichIsA("Tool")
                 local events = game:GetService("ReplicatedStorage"):WaitForChild("Events")
@@ -48,18 +50,11 @@ autoBtn.MouseButton1Click:Connect(function()
                     events.SwingSaber:FireServer()
                 end
 
-                if tool then
-                    pcall(function()
-                        tool:Activate()
-                        task.wait(0.05)
-                        if tool:FindFirstChild("RemoteClick") then
-                            local args = { {} }
-                            tool.RemoteClick:FireServer(unpack(args))
-                        end
-                    end)
-                end
+                -- Fake actual left click to trigger swing
+                VirtualInputManager:SendMouseButtonEvent(500, 500, 0, true, game, 0)
+                VirtualInputManager:SendMouseButtonEvent(500, 500, 0, false, game, 0)
 
-                task.wait(0.07)
+                task.wait(0.08)
             end
         end)
     end
