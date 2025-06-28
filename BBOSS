@@ -17,7 +17,7 @@ title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 title.TextColor3 = Color3.fromRGB(128, 0, 255)
 title.TextScaled = true
 
--- Auto Swing Toggle (Auto-detect saber + real swing)
+-- Auto Swing Toggle (Activate + RemoteClick + SwingSaber)
 local autoSwing = false
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Text = "Auto Swing [OFF]"
@@ -48,9 +48,15 @@ autoBtn.MouseButton1Click:Connect(function()
                     events.SwingSaber:FireServer()
                 end
 
-                if tool and tool:FindFirstChild("RemoteClick") then
-                    local args = { {} }
-                    tool.RemoteClick:FireServer(unpack(args))
+                if tool then
+                    pcall(function()
+                        tool:Activate()
+                        task.wait(0.05)
+                        if tool:FindFirstChild("RemoteClick") then
+                            local args = { {} }
+                            tool.RemoteClick:FireServer(unpack(args))
+                        end
+                    end)
                 end
 
                 task.wait(0.07)
