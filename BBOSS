@@ -17,7 +17,7 @@ title.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 title.TextColor3 = Color3.fromRGB(128, 0, 255)
 title.TextScaled = true
 
--- Auto Swing Toggle
+-- Auto Swing (Replaced with Sparkle Butcher RemoteClick + FireServer)
 local autoSwing = false
 local autoBtn = Instance.new("TextButton", frame)
 autoBtn.Text = "Auto Swing [OFF]"
@@ -34,19 +34,26 @@ autoBtn.MouseButton1Click:Connect(function()
     if autoSwing then
         spawn(function()
             while autoSwing do
-                local eventFolder = game.ReplicatedStorage:FindFirstChild("Events")
-                if eventFolder then
-                    local swing = eventFolder:FindFirstChild("SwingSaber")
-                    if swing then swing:FireServer() end
+                local events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
+                if events then
+                    local swingEvent = events:FindFirstChild("SwingSaber")
+                    if swingEvent then
+                        swingEvent:FireServer()
+                    end
                 end
 
-                local char = game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()
-                local blade = char:FindFirstChild("Heaven Drift")
-                if blade then
-                    local click = blade:FindFirstChild("RemoteClick")
-                    if click then click:FireServer() end
+                local char = game:GetService("Players").LocalPlayer.Character
+                if char then
+                    local blade = char:FindFirstChild("Sparkle Butcher")
+                    if blade then
+                        local click = blade:FindFirstChild("RemoteClick")
+                        if click then
+                            local args = {{}}
+                            click:FireServer(unpack(args))
+                        end
+                    end
                 end
-                wait(0.05)
+                task.wait(0.05)
             end
         end)
     end
